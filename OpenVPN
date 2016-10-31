@@ -1,0 +1,18 @@
+/certificate
+add common-name=test-ca name=test-ca key-size=1024 days-valid=365 key-usage=key-cert-sign,crl-sign
+sign test-ca
+add name=test-SRV common-name=test-SRV key-size=1024 key-usage=digital-signature,key-encipherment,tls-server
+sing test-SRV ca=test-ca
+add name=test-USR-01 common-name=test-USR-01 key-size=1024 key-usage=tls-client
+sing test-USR-01 ca=test-ca
+export-certificate test-ca export-passphrase=""
+export-certificate test-SRV export-passphrase="passwordHere"
+export-certificate test-USR-01 export-passphrase="passwordHere"
+/ip pool
+add name=vpn-pool ranges=192.168.0.50-192.168.0.100
+/ppp profile
+add local-address=xx.xx.xx.xx name=ovpn remote-address=vpn-pool use-encryption=yes use-mpls=no
+/ppp secret
+add name=userName password=passwordHere profile=ovpn service=ovpn
+/interface ovpn-server server
+set auth=md5 certificate=SRV-01 cipher=aes256 default-profile=ovpn enabled=yes keepalive-timeout=disabled netmask=24 require-client-certificate=yes
