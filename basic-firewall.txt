@@ -1,0 +1,10 @@
+/ip firewall filter
+add action=accept chain=input comment="Allow traffic on VPN" dst-address=xx.xx.xx.xx dst-port=1194 in-interface=ether1 protocol=tcp
+add action=accept chain=input comment="Allow established connections" connection-state=established in-interface=ether1
+add action=drop chain=input comment="Drop everything else" in-interface=ether1
+add action=drop chain=forward comment="Drop bogon" src-address=0.0.0.0/8
+add action=drop chain=forward comment="Drop bogon" dst-address=0.0.0.0/8
+add action=drop chain=forward comment="Drop bogon" src-address=127.0.0.0/8
+add action=drop chain=forward comment="Drop bogon" dst-address=127.0.0.0/8
+add action=drop chain=forward comment="Drop bogon" src-address=224.0.0.0/3
+add action=drop chain=forward comment="Drop bogon" dst-address=224.0.0.0/3
