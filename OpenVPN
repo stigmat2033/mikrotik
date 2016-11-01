@@ -15,4 +15,4 @@ add local-address=xx.xx.xx.xx name=ovpn remote-address=vpn-pool use-encryption=y
 /ppp secret
 add name=userName password=passwordHere profile=ovpn service=ovpn
 /interface ovpn-server server
-set auth=md5 certificate=SRV-01 cipher=aes256 default-profile=ovpn enabled=yes keepalive-timeout=disabled netmask=24 require-client-certificate=yes
+set auth=md5 certificate=test-SRV cipher=aes256 default-profile=ovpn enabled=yes keepalive-timeout=disabled netmask=24 require-client-certificate=yes
