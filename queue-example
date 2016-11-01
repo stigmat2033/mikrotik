@@ -1,0 +1,26 @@
+/ip firewall mangle
+add action=mark-packet chain=prerouting comment="Mark outgoing packets" in-interface=bridge new-packet-mark=client-upload
+add action=mark-packet chain=prerouting comment="Mark incoming packets" in-interface=ether1 new-packet-mark=client-download
+add action=mark-packet chain=prerouting comment="Mark in TCP WWW packets" new-packet-mark=client-download-web packet-mark=client-download port=80,443 protocol=tcp
+add action=mark-packet chain=prerouting comment="Mark out TCP WWW packets" new-packet-mark=client-upload-web packet-mark=client-upload port=80,443 protocol=tcp
+add action=mark-packet chain=prerouting comment="Mark in UDP WWW packets" new-packet-mark=client-download-web packet-mark=client-download port=80,443 protocol=udp
+add action=mark-packet chain=prerouting comment="Mark out UDP WWW packets" new-packet-mark=client-upload-web packet-mark=client-upload port=80,443 protocol=udp
+add action=mark-packet chain=prerouting comment="Mark in TCP appliations packets" new-packet-mark=client-download-game packet-mark=client-download protocol=tcp src-port=6112
+add action=mark-packet chain=prerouting comment="Mark out TCP applications packtes" dst-port=6112 new-packet-mark=client-upload-game packet-mark=client-upload protocol=tcp
+/queue type
+add kind=pcq name=global-pcq-download pcq-classifier=dst-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64
+add kind=pcq name=global-pcq-upload pcq-classifier=src-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64
+add kind=pcq name=pcq-download-web pcq-classifier=dst-address pcq-dst-address-mask=0 pcq-dst-address6-mask=64 pcq-src-address-mask=0 pcq-src-address6-mask=64
+add kind=pcq name=pcq-download-game pcq-classifier=dst-address pcq-dst-address6-mask=64 pcq-src-address6-mask=64
+add kind=pcq name=pcq-upload-all pcq-classifier=src-address pcq-dst-address-mask=0 pcq-dst-address6-mask=64 pcq-src-address-mask=0 pcq-src-address6-mask=64
+add kind=pcq name=pcq-upload-web pcq-classifier=src-address pcq-dst-address-mask=0 pcq-dst-address6-mask=64 pcq-src-address-mask=0 pcq-src-address6-mask=64
+add kind=pcq name=pcq-upload-game pcq-classifier=src-address pcq-dst-address-mask=0 pcq-dst-address6-mask=64 pcq-src-address-mask=0 pcq-src-address6-mask=64
+/queue tree
+add max-limit=60M name=global-download parent=global queue=global-pcq-download
+add max-limit=10M name=global-upload parent=global queue=global-pcq-upload
+add name=download-web packet-mark=client-download-web parent=global-download priority=7 queue=pcq-download-web
+add name=download-all packet-mark=client-download parent=global-download queue=global-pcq-download
+add name=download-game packet-mark=client-download-game parent=global-download priority=6 queue=pcq-download-game
+add name=upload-all packet-mark=client-upload parent=global-upload queue=global-pcq-upload
+add name=upload-web packet-mark=client-upload-web parent=global-upload priority=7 queue=pcq-upload-web
+add name=upload-game packet-mark=client-upload-game parent=global-upload priority=6 queue=pcq-upload-game
